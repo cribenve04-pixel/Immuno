@@ -1,0 +1,983 @@
+@import "tailwindcss";
+
+/* Configure Tailwind v4 dark variant to strictly obey .dark class instead of system prefers-color-scheme */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+/* ==========================================================================
+   STRICT LIGHT MODE RULES (ZERO UNINTENDED BLUE/DARK BACKGROUNDS IN LIGHT MODE)
+   Guarantees pure crisp white background for articles and neutral light canvas
+   ========================================================================== */
+html:not(.dark),
+body:not(.dark),
+[data-theme="light"],
+html:not([data-theme="slate"]):not([data-theme="night"]):not([data-theme="sepia"]) {
+  color-scheme: light;
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark) #top,
+body:not(.dark) #top,
+[data-theme="light"] #top {
+  background-color: #f8fafc !important;
+}
+
+/* Light mode articles: strictly pure white with clean slate borders */
+html:not(.dark) article,
+body:not(.dark) article,
+[data-theme="light"] article,
+html:not([data-theme="slate"]):not([data-theme="night"]):not([data-theme="sepia"]) article,
+#sec-1-barriere {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) #sec-1-barriere,
+[data-theme="light"] #sec-1-barriere {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+
+html:not(.dark) #sec-1-barriere .bg-slate-50,
+[data-theme="light"] #sec-1-barriere .bg-slate-50 {
+  background-color: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+/* ==========================================================================
+   FLUID VIEWPORT RESPONSIVENESS: ZERO DEAD BLANK MARGINS ACROSS DEVICES
+   Desktop (16:9 / Ultrawide) & Smartphone/Tablet (Portrait & Landscape)
+   ========================================================================== */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+.unified-lecture-view {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+.unified-lecture-view > * {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Compact Mobile Landscape Mode: Prevent sticky bars from taking over the short viewport */
+@media (max-height: 520px) and (orientation: landscape) {
+  header.sticky {
+    position: relative !important;
+  }
+}
+
+.font-serif-body {
+  font-family: 'Source Serif 4', Georgia, Cambria, 'Times New Roman', Times, serif;
+}
+
+.font-mono-code {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* ==========================================================================
+   ACADEMIC PRINT & PDF EXPORT OPTIMIZATIONS
+   Prevents paragraphs from breaking in half across pages, eliminates orphaned
+   headings, removes navigation/screen clutter, and styles textbook blocks for A4.
+   ========================================================================== */
+@page {
+  size: A4 portrait;
+  margin: 15mm 14mm 16mm 14mm;
+}
+
+@media print {
+  /* ==========================================================================
+     PURE EDITORIAL BLACK-ON-WHITE ACADEMIC PRINT SYSTEM (ABBAS TEXTBOOK STYLE)
+     100% Crisp Black/Charcoal Text on Pure White Paper, Zero Heavy Color Fill,
+     Zero White-on-White Glitches, Elegant Left-Border Callouts & High Contrast.
+     ========================================================================== */
+
+  /* 1. Global Reset, Background Whitening & Elimination of Gradients / Shadows */
+  *,
+  *::before,
+  *::after {
+    box-shadow: none !important;
+    text-shadow: none !important;
+    background-image: none !important;
+  }
+
+  html,
+  body,
+  #root,
+  main,
+  article,
+  section,
+  div,
+  header,
+  footer,
+  aside,
+  table,
+  thead,
+  tbody,
+  tr,
+  th,
+  td,
+  ul,
+  ol,
+  li,
+  span,
+  p {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+    box-shadow: none !important;
+  }
+
+  /* Neutralize all Tailwind colored backgrounds in print */
+  [class*="bg-slate-"],
+  [class*="bg-emerald-"],
+  [class*="bg-blue-"],
+  [class*="bg-amber-"],
+  [class*="bg-red-"],
+  [class*="bg-rose-"],
+  [class*="bg-indigo-"],
+  [class*="bg-purple-"],
+  [class*="bg-teal-"],
+  [class*="bg-cyan-"],
+  [class*="bg-yellow-"],
+  [class*="bg-gradient-"],
+  [class*="from-"],
+  [class*="to-"],
+  [class*="via-"] {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    background-image: none !important;
+  }
+
+  /* 2. Pure Black / Deep Charcoal Typography Hierarchy (No White/Faint Text!) */
+  html,
+  body {
+    font-size: 10pt !important;
+    line-height: 1.55 !important;
+    color: #111827 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Headings, strong markers, and table headers: 100% Solid Black */
+  h1, h2, h3, h4, h5, h6,
+  strong, b, th, dt {
+    color: #000000 !important;
+    font-weight: 700 !important;
+    break-after: avoid !important;
+    page-break-after: avoid !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Body text, paragraphs, lists, descriptions: Deep Charcoal (#111827) */
+  p, li, dd, td, blockquote, figcaption {
+    color: #111827 !important;
+    orphans: 4 !important;
+    widows: 4 !important;
+    text-align: justify !important;
+    text-justify: inter-word !important;
+  }
+
+  /* Force all light/colored text utility classes to dark high-contrast ink */
+  [class*="text-white"],
+  [class*="text-slate-100"],
+  [class*="text-slate-200"],
+  [class*="text-slate-300"],
+  [class*="text-slate-400"],
+  [class*="text-slate-500"],
+  [class*="text-slate-600"],
+  [class*="text-slate-700"],
+  [class*="text-slate-800"],
+  [class*="text-slate-900"],
+  [class*="text-emerald-"],
+  [class*="text-blue-"],
+  [class*="text-indigo-"],
+  [class*="text-purple-"],
+  [class*="text-violet-"],
+  [class*="text-amber-"],
+  [class*="text-yellow-"],
+  [class*="text-red-"],
+  [class*="text-rose-"],
+  [class*="text-teal-"],
+  [class*="text-cyan-"] {
+    color: #111827 !important;
+  }
+
+  /* Badge and chip labels: bold black on clean white */
+  span[class*="rounded-full"],
+  span[class*="px-2"],
+  span[class*="px-3"] {
+    color: #000000 !important;
+    border: 0.5pt solid #475569 !important;
+    background: #ffffff !important;
+  }
+
+  /* Hide huge decorative watermark numbers (e.g. text-9xl absolute numbers) */
+  [class*="text-9xl"],
+  [class*="text-8xl"],
+  .pointer-events-none.select-none.absolute {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* 3. Hide Screen UI Chrome, Interactive Controls and Sticky Bars */
+  header.sticky,
+  header:not(.print-frontispiece-header),
+  nav,
+  aside,
+  .no-print,
+  button,
+  select,
+  input,
+  [role="dialog"],
+  .fixed,
+  .sticky {
+    display: none !important;
+  }
+
+  /* Ensure unrolled print elements are visible */
+  .print\:block {
+    display: block !important;
+    visibility: visible !important;
+  }
+
+  .print\:hidden {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* 4. Document Layout & Article Container Cleanliness (Zero Nested Outer Borders) */
+  #root,
+  .min-h-screen,
+  .max-w-7xl,
+  main {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    float: none !important;
+  }
+
+  /* Articles: clean flow without heavy borders or grey outer boxes */
+  article,
+  .unified-lecture-view,
+  [id^="sec-"] {
+    border: none !important;
+    padding: 0 !important;
+    margin-bottom: 22pt !important;
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    page-break-inside: auto !important;
+    break-inside: auto !important;
+  }
+
+  section {
+    border: none !important;
+    padding: 0 !important;
+    margin-bottom: 18pt !important;
+  }
+
+  /* 5. Clean Academic Callouts & Cards (Zero Nested Rings) */
+  /* Clinical correlations, physiological bridges, warnings: elegant left border */
+  [class*="border-l-4"],
+  [class*="border-l-8"],
+  .border-l-4,
+  .border-l-8,
+  [class*="border-emerald-500"],
+  [class*="border-amber-500"],
+  [class*="border-red-500"],
+  [class*="border-blue-500"],
+  [class*="border-indigo-500"],
+  [class*="border-purple-500"] {
+    border-top: none !important;
+    border-right: none !important;
+    border-bottom: none !important;
+    border-left: 3pt solid #1e293b !important;
+    padding-left: 10pt !important;
+    padding-top: 6pt !important;
+    padding-bottom: 6pt !important;
+    margin: 12pt 0 !important;
+    background: #ffffff !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Inner card grids: delicate single 0.5pt slate border */
+  .grid > div,
+  .rounded-2xl.border,
+  .rounded-xl.border,
+  .rounded-lg.border,
+  .border.rounded-2xl,
+  .border.rounded-xl,
+  .border.rounded-lg {
+    border: 0.5pt solid #94a3b8 !important;
+    border-radius: 4pt !important;
+    padding: 8pt !important;
+    margin-bottom: 8pt !important;
+    background: #ffffff !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* 6. High-Contrast Editorial Tables */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    margin: 12pt 0 !important;
+    background: #ffffff !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  thead {
+    display: table-header-group !important;
+  }
+
+  th {
+    border: 1pt solid #334155 !important;
+    background-color: #f1f5f9 !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+    padding: 6pt 8pt !important;
+    font-size: 9pt !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.03em !important;
+  }
+
+  td {
+    border: 0.5pt solid #cbd5e1 !important;
+    padding: 6pt 8pt !important;
+    font-size: 9pt !important;
+    color: #111827 !important;
+    background: #ffffff !important;
+  }
+
+  tbody tr {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* 7. SVG Graphics in Print (Neutralize dark fills & force black text) */
+  svg {
+    max-width: 100% !important;
+    height: auto !important;
+    background: #ffffff !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Invert dark canvas rectangles in SVGs to clean bordered white backgrounds */
+  svg rect[fill="#090d16"],
+  svg rect[fill="#0f172a"],
+  svg rect[fill="#1e293b"],
+  svg rect[fill="#080c15"],
+  svg rect[fill="#0b0f19"],
+  svg rect[fill="#020617"] {
+    fill: #ffffff !important;
+    stroke: #64748b !important;
+    stroke-width: 0.75pt !important;
+  }
+
+  /* Force all SVG text elements to black ink */
+  svg text,
+  svg tspan {
+    fill: #000000 !important;
+    color: #000000 !important;
+    font-weight: 600 !important;
+  }
+
+  /* Ensure path lines and arrows remain distinct */
+  svg line,
+  svg path {
+    stroke-opacity: 1 !important;
+  }
+
+  /* 8. Page Break Control */
+  .print-page-break {
+    page-break-before: always !important;
+    break-before: page !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    display: block !important;
+  }
+
+  .print-page-break-after {
+    page-break-after: always !important;
+    break-after: page !important;
+    height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    display: block !important;
+  }
+
+  /* Prevent awkward cuts within key educational elements */
+  figure,
+  blockquote,
+  .print-callout,
+  .step-card {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}
+
+/* ==========================================================================
+   TRUE COMPREHENSIVE DARK MODE & THEME ENGINE (SLATE, NIGHT & SEPIA)
+   Transforms cards, articles, sidebars, borders, callouts, tables, text, inputs, and modals
+   ========================================================================== */
+html[data-theme="slate"],
+body[data-theme="slate"],
+[data-theme="slate"],
+html[data-theme="night"],
+body[data-theme="night"],
+[data-theme="night"],
+html.dark,
+body.dark,
+.dark {
+  color-scheme: dark;
+}
+
+/* 1. Global Page Background & Root Text */
+html[data-theme="slate"],
+body[data-theme="slate"],
+[data-theme="slate"] {
+  background-color: #0f172a !important;
+  color: #f1f5f9 !important;
+}
+
+html[data-theme="night"],
+body[data-theme="night"],
+[data-theme="night"] {
+  background-color: #05070e !important;
+  color: #f8fafc !important;
+}
+
+/* 2. Primary Containers, Articles, Cards, Header & Aside */
+[data-theme="slate"] header,
+[data-theme="slate"] article,
+[data-theme="slate"] aside,
+[data-theme="slate"] footer,
+[data-theme="slate"] .bg-white,
+[data-theme="slate"] [class*="bg-white/"],
+[data-theme="slate"] [role="dialog"],
+[data-theme="slate"] .rounded-2xl.border,
+[data-theme="slate"] .rounded-xl.border {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="night"] header,
+[data-theme="night"] article,
+[data-theme="night"] aside,
+[data-theme="night"] footer,
+[data-theme="night"] .bg-white,
+[data-theme="night"] [class*="bg-white/"],
+[data-theme="night"] [role="dialog"],
+[data-theme="night"] .rounded-2xl.border,
+[data-theme="night"] .rounded-xl.border {
+  background-color: #0b0f19 !important;
+  color: #f8fafc !important;
+  border-color: #1e293b !important;
+}
+
+/* 3. Secondary Neutral Panels & Backgrounds */
+[data-theme="slate"] [class*="bg-slate-50"],
+[data-theme="slate"] [class*="bg-slate-100"] {
+  background-color: #162032 !important;
+  color: #e2e8f0 !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="night"] [class*="bg-slate-50"],
+[data-theme="night"] [class*="bg-slate-100"] {
+  background-color: #080c15 !important;
+  color: #f1f5f9 !important;
+  border-color: #1e293b !important;
+}
+
+/* 4. Borders Everywhere */
+[data-theme="slate"] [class*="border-slate-"] {
+  border-color: #334155 !important;
+}
+
+[data-theme="night"] [class*="border-slate-"] {
+  border-color: #1e293b !important;
+}
+
+/* 5. Colored Highlight Boxes & Callout Cards in Lessons (No more glaring white/pastels) */
+/* Blue / Cyan / Sky */
+[data-theme="slate"] [class*="bg-blue-50"],
+[data-theme="slate"] [class*="bg-blue-100"],
+[data-theme="slate"] [class*="bg-cyan-50"],
+[data-theme="slate"] [class*="bg-sky-50"],
+[data-theme="night"] [class*="bg-blue-50"],
+[data-theme="night"] [class*="bg-blue-100"],
+[data-theme="night"] [class*="bg-cyan-50"],
+[data-theme="night"] [class*="bg-sky-50"] {
+  background-color: rgba(30, 58, 138, 0.28) !important;
+  border-color: rgba(59, 130, 246, 0.35) !important;
+  color: #93c5fd !important;
+}
+
+/* Red / Rose */
+[data-theme="slate"] [class*="bg-red-50"],
+[data-theme="slate"] [class*="bg-red-100"],
+[data-theme="slate"] [class*="bg-rose-50"],
+[data-theme="slate"] [class*="bg-rose-100"],
+[data-theme="night"] [class*="bg-red-50"],
+[data-theme="night"] [class*="bg-red-100"],
+[data-theme="night"] [class*="bg-rose-50"],
+[data-theme="night"] [class*="bg-rose-100"] {
+  background-color: rgba(136, 19, 55, 0.28) !important;
+  border-color: rgba(244, 63, 94, 0.35) !important;
+  color: #fca5a5 !important;
+}
+
+/* Emerald / Green */
+[data-theme="slate"] [class*="bg-emerald-50"],
+[data-theme="slate"] [class*="bg-emerald-100"],
+[data-theme="slate"] [class*="bg-green-50"],
+[data-theme="night"] [class*="bg-emerald-50"],
+[data-theme="night"] [class*="bg-emerald-100"],
+[data-theme="night"] [class*="bg-green-50"] {
+  background-color: rgba(6, 78, 59, 0.28) !important;
+  border-color: rgba(16, 185, 129, 0.35) !important;
+  color: #86efac !important;
+}
+
+/* Amber / Yellow */
+[data-theme="slate"] [class*="bg-amber-50"],
+[data-theme="slate"] [class*="bg-amber-100"],
+[data-theme="slate"] [class*="bg-yellow-50"],
+[data-theme="night"] [class*="bg-amber-50"],
+[data-theme="night"] [class*="bg-amber-100"],
+[data-theme="night"] [class*="bg-yellow-50"] {
+  background-color: rgba(120, 53, 15, 0.28) !important;
+  border-color: rgba(245, 158, 11, 0.35) !important;
+  color: #fde68a !important;
+}
+
+/* Purple / Indigo / Violet */
+[data-theme="slate"] [class*="bg-purple-50"],
+[data-theme="slate"] [class*="bg-purple-100"],
+[data-theme="slate"] [class*="bg-indigo-50"],
+[data-theme="slate"] [class*="bg-indigo-100"],
+[data-theme="slate"] [class*="bg-violet-50"],
+[data-theme="night"] [class*="bg-purple-50"],
+[data-theme="night"] [class*="bg-purple-100"],
+[data-theme="night"] [class*="bg-indigo-50"],
+[data-theme="night"] [class*="bg-indigo-100"],
+[data-theme="night"] [class*="bg-violet-50"] {
+  background-color: rgba(67, 56, 202, 0.28) !important;
+  border-color: rgba(99, 102, 241, 0.35) !important;
+  color: #c7d2fe !important;
+}
+
+/* Teal */
+[data-theme="slate"] [class*="bg-teal-50"],
+[data-theme="night"] [class*="bg-teal-50"] {
+  background-color: rgba(19, 78, 74, 0.28) !important;
+  border-color: rgba(20, 184, 166, 0.35) !important;
+  color: #99f6e4 !important;
+}
+
+/* 6. Typography Hierarchy in Dark Mode (High Contrast WCAG AAA Compliant) */
+[data-theme="slate"] h1, [data-theme="slate"] h2, [data-theme="slate"] h3, [data-theme="slate"] h4, [data-theme="slate"] h5, [data-theme="slate"] h6,
+[data-theme="night"] h1, [data-theme="night"] h2, [data-theme="night"] h3, [data-theme="night"] h4, [data-theme="night"] h5, [data-theme="night"] h6 {
+  color: #ffffff !important;
+}
+
+[data-theme="slate"] [class*="text-slate-9"],
+[data-theme="night"] [class*="text-slate-9"],
+[data-theme="slate"] [class*="text-slate-8"],
+[data-theme="night"] [class*="text-slate-8"] {
+  color: #f8fafc !important;
+}
+
+[data-theme="slate"] [class*="text-slate-7"],
+[data-theme="night"] [class*="text-slate-7"] {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="slate"] [class*="text-slate-6"],
+[data-theme="night"] [class*="text-slate-6"] {
+  color: #cbd5e1 !important;
+}
+
+/* Crucial: Invert low-contrast muted text in dark mode to bright readable slate */
+[data-theme="slate"] [class*="text-slate-5"],
+[data-theme="night"] [class*="text-slate-5"] {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="slate"] [class*="text-slate-4"],
+[data-theme="night"] [class*="text-slate-4"] {
+  color: #94a3b8 !important;
+}
+
+/* Dark Mode Colored Text & Badges Inversion (Prevents dark-on-dark unreadable text) */
+[data-theme="slate"] [class*="text-blue-"],
+[data-theme="night"] [class*="text-blue-"] {
+  color: #93c5fd !important;
+}
+
+[data-theme="slate"] [class*="text-indigo-"],
+[data-theme="night"] [class*="text-indigo-"] {
+  color: #a5b4fc !important;
+}
+
+[data-theme="slate"] [class*="text-purple-"],
+[data-theme="night"] [class*="text-purple-"],
+[data-theme="slate"] [class*="text-violet-"],
+[data-theme="night"] [class*="text-violet-"] {
+  color: #d8b4fe !important;
+}
+
+[data-theme="slate"] [class*="text-emerald-"],
+[data-theme="night"] [class*="text-emerald-"],
+[data-theme="slate"] [class*="text-green-"],
+[data-theme="night"] [class*="text-green-"] {
+  color: #86efac !important;
+}
+
+[data-theme="slate"] [class*="text-teal-"],
+[data-theme="night"] [class*="text-teal-"],
+[data-theme="slate"] [class*="text-cyan-"],
+[data-theme="night"] [class*="text-cyan-"] {
+  color: #67e8f9 !important;
+}
+
+[data-theme="slate"] [class*="text-amber-"],
+[data-theme="night"] [class*="text-amber-"],
+[data-theme="slate"] [class*="text-yellow-"],
+[data-theme="night"] [class*="text-yellow-"] {
+  color: #fde68a !important;
+}
+
+[data-theme="slate"] [class*="text-red-"],
+[data-theme="night"] [class*="text-red-"],
+[data-theme="slate"] [class*="text-rose-"],
+[data-theme="night"] [class*="text-rose-"] {
+  color: #fca5a5 !important;
+}
+
+/* Light Mode Contrast Guards: prevent washed-out text on white surfaces */
+html:not([data-theme="slate"]):not([data-theme="night"]):not([data-theme="sepia"]) .text-slate-400,
+body:not([data-theme="slate"]):not([data-theme="night"]):not([data-theme="sepia"]) .text-slate-400 {
+  color: #334155 !important;
+}
+
+html:not([data-theme="slate"]):not([data-theme="night"]):not([data-theme="sepia"]) .text-slate-500,
+body:not([data-theme="slate"]):not([data-theme="night"]):not([data-theme="sepia"]) .text-slate-500 {
+  color: #1e293b !important;
+}
+
+/* Ensure amber/yellow text has high contrast in light mode */
+html:not([data-theme="slate"]):not([data-theme="night"]):not([data-theme="sepia"]) [class*="text-amber-600"],
+html:not([data-theme="slate"]):not([data-theme="night"]):not([data-theme="sepia"]) [class*="text-amber-700"],
+html:not([data-theme="slate"]):not([data-theme="night"]):not([data-theme="sepia"]) [class*="text-yellow-600"] {
+  color: #92400e !important;
+}
+
+/* 7. Tables & Grids in Dark Mode */
+[data-theme="slate"] table,
+[data-theme="night"] table {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="slate"] thead,
+[data-theme="slate"] th,
+[data-theme="night"] thead,
+[data-theme="night"] th {
+  background-color: #162032 !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="slate"] td,
+[data-theme="night"] td {
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="slate"] tr:hover,
+[data-theme="night"] tr:hover {
+  background-color: #243046 !important;
+}
+
+/* 8. Controls, Inputs & Selects */
+[data-theme="slate"] select,
+[data-theme="slate"] input,
+[data-theme="slate"] textarea,
+[data-theme="night"] select,
+[data-theme="night"] input,
+[data-theme="night"] textarea {
+  background-color: #162032 !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+/* 9. Sepia Theme Support */
+[data-theme="sepia"] header,
+[data-theme="sepia"] article,
+[data-theme="sepia"] aside,
+[data-theme="sepia"] footer,
+[data-theme="sepia"] .bg-white,
+[data-theme="sepia"] [class*="bg-white/"] {
+  background-color: #f7f1e6 !important;
+  color: #3e2e1e !important;
+  border-color: #dfcdb5 !important;
+}
+
+[data-theme="sepia"] [class*="bg-slate-50"],
+[data-theme="sepia"] [class*="bg-slate-100"] {
+  background-color: #ebe2d3 !important;
+  color: #4a3826 !important;
+  border-color: #dfcdb5 !important;
+}
+
+[data-theme="sepia"] [class*="border-slate-"] {
+  border-color: #dfcdb5 !important;
+}
+
+[data-theme="sepia"] [class*="text-slate-9"],
+[data-theme="sepia"] [class*="text-slate-8"],
+[data-theme="sepia"] [class*="text-slate-7"] {
+  color: #2c1d11 !important;
+}
+
+[data-theme="sepia"] [class*="text-slate-6"],
+[data-theme="sepia"] [class*="text-slate-5"] {
+  color: #4a3421 !important;
+}
+
+[data-theme="sepia"] [class*="text-slate-4"] {
+  color: #63472d !important;
+}
+
+[data-theme="sepia"] [class*="text-blue-"] {
+  color: #1e40af !important;
+}
+
+[data-theme="sepia"] [class*="text-purple-"],
+[data-theme="sepia"] [class*="text-indigo-"] {
+  color: #581c87 !important;
+}
+
+[data-theme="sepia"] [class*="text-emerald-"] {
+  color: #065f46 !important;
+}
+
+/* ==========================================================================
+   SUPPRESSION OF DUPLICATE INNER HEADERS
+   Ensures single authoritative header format: Docente, N. Lezione, Data in piccolo,
+   e in grande l'Argomento.
+   ========================================================================== */
+.unified-lecture-view > header:first-child,
+.unified-lecture-view > div:first-child > header:first-child,
+.unified-lecture-view > article:first-child > header:first-child,
+.unified-lecture-view > header.border-b.border-slate-200.pb-8:first-child,
+.unified-lecture-view > .space-y-12 > div.bg-white.rounded-2xl.border:first-child,
+.unified-lecture-view > .space-y-10 > div.bg-gradient-to-r:first-child,
+.unified-lecture-view > div.bg-gradient-to-r:first-child {
+  display: none !important;
+}
+
+/* ==========================================================================
+   IMMUNOLOGY PROCESS MAP HIGH-CONTRAST THEME GUARDS
+   Guarantees 100% crisp readability across all reading themes
+   ========================================================================== */
+.immunology-process-map {
+  isolation: isolate;
+}
+
+/* Light / Default */
+.immunology-process-map .step-card {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+.immunology-process-map .step-card .step-source,
+.immunology-process-map .step-card h4 {
+  color: #0f172a !important;
+}
+.immunology-process-map .step-card .step-target {
+  color: #1d4ed8 !important;
+}
+.immunology-process-map .step-card .step-desc {
+  color: #334155 !important;
+}
+
+/* Dark Themes: Slate and Night */
+[data-theme="slate"] .immunology-process-map,
+[data-theme="night"] .immunology-process-map {
+  background-color: #0b1120 !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="slate"] .immunology-process-map .step-card,
+[data-theme="night"] .immunology-process-map .step-card {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="slate"] .immunology-process-map .step-card .step-source,
+[data-theme="slate"] .immunology-process-map .step-card h4,
+[data-theme="night"] .immunology-process-map .step-card .step-source,
+[data-theme="night"] .immunology-process-map .step-card h4 {
+  color: #ffffff !important;
+}
+
+[data-theme="slate"] .immunology-process-map .step-card .step-target,
+[data-theme="night"] .immunology-process-map .step-card .step-target {
+  color: #60a5fa !important;
+}
+
+[data-theme="slate"] .immunology-process-map .step-card .step-desc,
+[data-theme="night"] .immunology-process-map .step-card .step-desc {
+  color: #e2e8f0 !important;
+}
+
+[data-theme="slate"] .immunology-process-map .stream-node,
+[data-theme="night"] .immunology-process-map .stream-node {
+  background-color: #1e293b !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="slate"] .immunology-process-map .interfering-box,
+[data-theme="night"] .immunology-process-map .interfering-box {
+  background-color: #3f121d !important;
+  border-color: #9f1239 !important;
+  color: #ffe4e6 !important;
+}
+
+[data-theme="slate"] .immunology-process-map .interfering-box .interfering-title,
+[data-theme="night"] .immunology-process-map .interfering-box .interfering-title {
+  color: #ffffff !important;
+}
+
+[data-theme="slate"] .immunology-process-map .interfering-box .interfering-action,
+[data-theme="night"] .immunology-process-map .interfering-box .interfering-action {
+  color: #fecdd3 !important;
+}
+
+[data-theme="slate"] .immunology-process-map .interfering-box .interfering-effect,
+[data-theme="night"] .immunology-process-map .interfering-box .interfering-effect {
+  color: #fda4af !important;
+}
+
+/* Warm Sepia Theme */
+[data-theme="sepia"] .immunology-process-map {
+  background-color: #f5eedf !important;
+  border-color: #d8c3a5 !important;
+  color: #2c1d11 !important;
+}
+
+[data-theme="sepia"] .immunology-process-map .step-card {
+  background-color: #fdfaf4 !important;
+  border-color: #d8c3a5 !important;
+  color: #2c1d11 !important;
+}
+
+[data-theme="sepia"] .immunology-process-map .step-card .step-source,
+[data-theme="sepia"] .immunology-process-map .step-card h4 {
+  color: #1f140a !important;
+}
+
+[data-theme="sepia"] .immunology-process-map .step-card .step-target {
+  color: #854d0e !important;
+}
+
+[data-theme="sepia"] .immunology-process-map .step-card .step-desc {
+  color: #3e2e1e !important;
+}
+
+[data-theme="sepia"] .immunology-process-map .interfering-box {
+  background-color: #fae8e8 !important;
+  border-color: #e5a7a7 !important;
+  color: #5c1818 !important;
+}
+
+/* Custom Scrollbar for independent split panels */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 7px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(148, 163, 184, 0.15);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.45);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(71, 85, 105, 0.7);
+}
+.dark .custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(30, 41, 59, 0.4);
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(203, 213, 225, 0.6);
+}
+
+/* Hide native scrollbar so each split panel has strictly ONE single slider */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+/* Compatibility shims for custom color steps */
+.border-slate-150 {
+  border-color: #e2e8f0;
+}
+.border-blue-150 {
+  border-color: #dbeafe;
+}
+.bg-slate-850 {
+  background-color: #162032;
+}
+.hover\:bg-slate-850:hover {
+  background-color: #1e293b;
+}
+
+[data-theme="slate"] .border-slate-150,
+[data-theme="night"] .border-slate-150 {
+  border-color: #334155 !important;
+}
+[data-theme="sepia"] .border-slate-150 {
+  border-color: #dfcdb5 !important;
+}
+
+
+

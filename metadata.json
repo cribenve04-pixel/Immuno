@@ -1,0 +1,8 @@
+{
+  "name": "Manuale di Immunologia 2.0",
+  "description": "Manuale Universitario di Immunologia Generale e Clinica: Fondamenti, Architettura del Sistema Immunitario, Risposta Adattativa e Immunopatologia.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
