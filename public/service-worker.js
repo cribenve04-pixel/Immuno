@@ -1,9 +1,8 @@
-const CACHE_NAME = 'appunti-v2';
+const CACHE_NAME = 'appunti-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json'
-  // Aggiungi qui eventuali file CSS o JS locali, es: './style.css', './script.js'
 ];
 
 // Installazione Service Worker e Caching iniziale
@@ -32,12 +31,15 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Strategia Network-First con fallback su Cache
+// Strategia Network-First solo per richieste GET same-origin (non interferisce con Google Auth / Drive)
 self.addEventListener('fetch', (event) => {
+  if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
+
   event.respondWith(
     fetch(event.request)
       .then((networkResponse) => {
-        // Se la rete risponde, aggiorna la cache in background
         if (networkResponse && networkResponse.status === 200) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -47,7 +49,6 @@ self.addEventListener('fetch', (event) => {
         return networkResponse;
       })
       .catch(() => {
-        // Se sei offline o fallisce la rete, pesca dalla cache
         return caches.match(event.request);
       })
   );

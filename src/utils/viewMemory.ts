@@ -20,6 +20,7 @@ const STORAGE_KEYS = {
   IS_SPLIT_SYNC: 'immunologia_is_split_sync',
   IS_SIDEBAR_OPEN: 'immunologia_is_sidebar_open',
   FONT_SIZE_LEVEL: 'immunologia_font_size_level',
+  PAGE_ZOOM: 'immunologia_page_zoom',
   THEME: 'immunologia_theme',
   FONT_FAMILY: 'immunologia_font_family',
   SPACING: 'immunologia_spacing',
@@ -35,6 +36,7 @@ export interface ViewMemoryState {
   isSplitSync: boolean;
   isSidebarOpen: boolean;
   fontSizeLevel: number;
+  pageZoom: number;
   theme: ReadingTheme;
   fontFamily: ReadingFont;
   spacing: ReadingSpacing;
@@ -47,6 +49,7 @@ const DEFAULT_VIEW_STATE: ViewMemoryState = {
   isSplitSync: false,
   isSidebarOpen: true,
   fontSizeLevel: 100,
+  pageZoom: 100,
   theme: 'light',
   fontFamily: 'sans',
   spacing: 'normal'
@@ -142,6 +145,16 @@ export function loadViewMemory(): ViewMemoryState {
     }
   }
 
+  // 6b. Page Zoom (60 - 150)
+  let pageZoom = DEFAULT_VIEW_STATE.pageZoom;
+  const rawPageZoom = safeGetItem(STORAGE_KEYS.PAGE_ZOOM);
+  if (rawPageZoom) {
+    const parsed = parseInt(rawPageZoom, 10);
+    if (!isNaN(parsed) && parsed >= 60 && parsed <= 150) {
+      pageZoom = parsed;
+    }
+  }
+
   // 7. Theme
   let theme: ReadingTheme = DEFAULT_VIEW_STATE.theme;
   const rawTheme = safeGetItem(STORAGE_KEYS.THEME) as ReadingTheme | null;
@@ -170,6 +183,7 @@ export function loadViewMemory(): ViewMemoryState {
     isSplitSync,
     isSidebarOpen,
     fontSizeLevel,
+    pageZoom,
     theme,
     fontFamily,
     spacing
@@ -208,6 +222,11 @@ export function saveTheme(theme: ReadingTheme): void {
 
 export function saveFontSizeLevel(level: number): void {
   safeSetItem(STORAGE_KEYS.FONT_SIZE_LEVEL, level.toString());
+}
+
+export function savePageZoom(zoom: number): void {
+  const clamped = Math.min(150, Math.max(60, Math.round(zoom)));
+  safeSetItem(STORAGE_KEYS.PAGE_ZOOM, clamped.toString());
 }
 
 export function saveFontFamily(font: ReadingFont): void {

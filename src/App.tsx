@@ -13,6 +13,7 @@ import {
   saveSidebarOpen,
   saveTheme,
   saveFontSizeLevel,
+  savePageZoom,
   saveFontFamily,
   saveSpacing,
   saveLessonScrollPosition,
@@ -86,13 +87,9 @@ import {
   BookOpen,
   PanelRightOpen,
   ListOrdered,
-  Maximize,
-  Minimize,
   ArrowLeftRight,
   X,
   Columns2,
-  RotateCw,
-  SlidersVertical,
   Link2,
   Unlink,
   Loader2
@@ -121,6 +118,7 @@ function AppContent() {
 
   // Reader Customization Preferences con persistenza
   const [fontSizeLevel, setFontSizeLevel] = useState<number>(() => initialMemory.fontSizeLevel);
+  const [pageZoom, setPageZoom] = useState<number>(() => initialMemory.pageZoom);
   const [theme, setTheme] = useState<ReadingTheme>(() => initialMemory.theme);
   const [fontFamily, setFontFamily] = useState<ReadingFont>(() => initialMemory.fontFamily);
   const [spacing, setSpacing] = useState<ReadingSpacing>(() => initialMemory.spacing);
@@ -176,6 +174,10 @@ function AppContent() {
   useEffect(() => {
     saveFontSizeLevel(fontSizeLevel);
   }, [fontSizeLevel]);
+
+  useEffect(() => {
+    savePageZoom(pageZoom);
+  }, [pageZoom]);
 
   useEffect(() => {
     saveTheme(theme);
@@ -381,12 +383,11 @@ function AppContent() {
         window.requestAnimationFrame(() => {
           // Query ONLY section article headings, avoiding DOM thrashing across hundreds of generic IDs
           const sections = document.querySelectorAll<HTMLElement>('article[id^="sec-"], [id^="sec-"]');
-          const scrollPos = window.scrollY + 160;
           let matchedId: string | null = null;
 
           for (let i = sections.length - 1; i >= 0; i--) {
             const el = sections[i];
-            if (el.offsetTop <= scrollPos) {
+            if (el.getBoundingClientRect().top <= 160) {
               matchedId = el.id;
               break;
             }
@@ -531,7 +532,7 @@ function AppContent() {
       id="top"
       style={{ fontSize: `${fontSizeLevel}%` }}
     >
-      {/* Sticky Header compliant with Top Bar Contract */}
+      {/* Sticky Header snello per Mobile & Desktop */}
       <Header
         currentLesson={currentChapterNum}
         onSelectLesson={(num, sectionId) => handleNavigateToLesson(num, sectionId)}
@@ -546,15 +547,14 @@ function AppContent() {
         onOpenDiagrams={() => setIsDiagramsOpen(true)}
         isSplitMode={isSplitMode}
         onToggleSplitMode={() => setIsSplitMode((prev) => !prev)}
-        isLandscape={isLandscape}
-        onToggleOrientation={toggleScreenRotation}
-        onPrintCurrentChapter={() => window.print()}
-        onPrintFullBook={handlePrintFullBook}
-        isPrintingFullBook={isPrintingFullBook}
+        pageZoom={pageZoom}
       />
 
-      {/* Main Container */}
-      <div className={`w-full max-w-none flex-1 flex flex-col ${isSplitMode ? 'p-0 m-0 overflow-hidden' : 'px-2.5 sm:px-4 md:px-6 lg:px-8 xl:px-10 py-3 sm:py-5 md:py-6'}`}>
+      {/* Main Container con Zoom Pagina stile Chrome (mantiene Header e Modali nitidi al 100%) */}
+      <div
+        className={`app-zoom-surface w-full max-w-none flex-1 flex flex-col ${isSplitMode ? 'p-0 m-0 overflow-hidden' : 'px-2.5 sm:px-4 md:px-6 lg:px-8 xl:px-10 py-3 sm:py-5 md:py-6'}`}
+        style={{ zoom: `${pageZoom}%` } as React.CSSProperties}
+      >
         {!isSplitMode && !isPrintingFullBook && (
           <div className="hidden print:block mb-8 pb-4 border-b-2 border-slate-900">
             <div className="flex justify-between items-center text-xs text-slate-600 font-mono mb-1.5">
@@ -836,44 +836,6 @@ function AppContent() {
         )}
       </div>
 
-      {/* Floating Actions */}
-      <div className="fixed bottom-4 right-4 z-40 md:hidden print:hidden flex items-center gap-2">
-        <button
-          onClick={toggleScreenRotation}
-          title={isLandscape ? 'Torna a orientamento verticale' : 'Ruota schermo in orizzontale'}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-full shadow-2xl text-xs font-bold border transition-all active:scale-95 cursor-pointer ${
-            isLandscape
-              ? 'bg-indigo-600 text-white border-indigo-400 ring-2 ring-indigo-300/40'
-              : 'bg-slate-900/95 hover:bg-slate-900 text-white border-slate-700/80 backdrop-blur-md shadow-slate-900/40'
-          }`}
-        >
-          <RotateCw className={`w-3.5 h-3.5 transition-transform duration-300 ${isLandscape ? 'text-white rotate-90' : 'text-indigo-400'}`} />
-          <span>{isLandscape ? 'Verticale' : 'Ruota Schermo'}</span>
-        </button>
-
-        <button
-          onClick={toggleFullscreen}
-          title={isFullscreen ? 'Esci da schermo intero' : 'Schermo intero'}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-full shadow-2xl text-xs font-bold border transition-all active:scale-95 cursor-pointer ${
-            isFullscreen
-              ? 'bg-blue-600 text-white border-blue-400 ring-2 ring-blue-300/40'
-              : 'bg-slate-900/95 hover:bg-slate-900 text-white border-slate-700/80 backdrop-blur-md shadow-slate-900/40'
-          }`}
-        >
-          {isFullscreen ? (
-            <>
-              <Minimize className="w-3.5 h-3.5 text-white" />
-              <span>Esci</span>
-            </>
-          ) : (
-            <>
-              <Maximize className="w-3.5 h-3.5 text-cyan-400" />
-              <span>Full Screen</span>
-            </>
-          )}
-        </button>
-      </div>
-
       {/* Modali */}
       <UnifiedSearchAndResourceHub
         isOpen={isHubOpen}
@@ -898,6 +860,8 @@ function AppContent() {
       <ReaderSettingsModal
         isOpen={isReaderSettingsOpen}
         onClose={() => setIsReaderSettingsOpen(false)}
+        pageZoom={pageZoom}
+        onChangePageZoom={setPageZoom}
         fontSizeLevel={fontSizeLevel}
         onChangeFontSizeLevel={setFontSizeLevel}
         fontFamily={fontFamily}
@@ -906,8 +870,21 @@ function AppContent() {
         onChangeTheme={setTheme}
         spacing={spacing}
         onChangeSpacing={setSpacing}
+        isLandscape={isLandscape}
+        onToggleOrientation={toggleScreenRotation}
+        isFullscreen={isFullscreen}
+        onToggleFullscreen={toggleFullscreen}
+        currentChapterLabel={
+          currentLessonMeta.chapterNumber === 0
+            ? 'Introduzione'
+            : `Cap. ${getSectionByLessonNumber(currentChapterNum).chapter.romanId}`
+        }
+        onPrintCurrentChapter={() => window.print()}
+        onPrintFullBook={handlePrintFullBook}
+        isPrintingFullBook={isPrintingFullBook}
         onResetDefaults={() => {
           const defaults = resetAllViewMemory();
+          setPageZoom(defaults.pageZoom);
           setFontSizeLevel(defaults.fontSizeLevel);
           setTheme(defaults.theme);
           setFontFamily(defaults.fontFamily);

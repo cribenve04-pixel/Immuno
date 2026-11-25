@@ -261,6 +261,7 @@ html, body {
   #root,
   .min-h-screen,
   .max-w-7xl,
+  .app-zoom-surface,
   main {
     display: block !important;
     width: 100% !important;
@@ -269,6 +270,7 @@ html, body {
     padding: 0 !important;
     overflow: visible !important;
     float: none !important;
+    zoom: 1 !important;
   }
 
   /* Articles: clean flow without heavy borders or grey outer boxes */

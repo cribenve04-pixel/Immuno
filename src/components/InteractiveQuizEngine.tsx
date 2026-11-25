@@ -13,6 +13,11 @@ import {
 } from '../services/quizStorageService';
 import { GoogleAccountButton } from './GoogleAccountButton';
 import {
+  isGoogleLoginSnoozed,
+  AUTH_SNOOZE_EVENT,
+  auth
+} from '../services/googleAuthService';
+import {
   Award,
   CheckCircle2,
   XCircle,
@@ -58,6 +63,13 @@ export const InteractiveQuizEngine: React.FC<InteractiveQuizEngineProps> = ({
     return BOOK_CHAPTERS.filter((c) => c.lessonNumbers.length > 0 && c.id > 0).map((c) => c.id);
   });
   const [selectedCategoryFilters, setSelectedCategoryFilters] = useState<string[]>([]);
+  const [isLoginSnoozed, setIsLoginSnoozed] = useState<boolean>(() => isGoogleLoginSnoozed());
+
+  useEffect(() => {
+    const onSnooze = () => setIsLoginSnoozed(isGoogleLoginSnoozed());
+    window.addEventListener(AUTH_SNOOZE_EVENT, onSnooze);
+    return () => window.removeEventListener(AUTH_SNOOZE_EVENT, onSnooze);
+  }, []);
   const [selectedProfessorFilters, setSelectedProfessorFilters] = useState<string[]>([]);
   const [questionCountLimit, setQuestionCountLimit] = useState<number | 'infinite'>(20);
 
@@ -483,28 +495,30 @@ export const InteractiveQuizEngine: React.FC<InteractiveQuizEngineProps> = ({
           {isConfiguring && (
             <div className="max-w-2xl mx-auto space-y-4 sm:space-y-5">
               
-              {/* Card Sincronizzazione Cloud Google Drive */}
-              <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0">
-                    <Cloud className="w-4 h-4" />
+              {/* Card Sincronizzazione Cloud Google Drive (nascosta se l'utente ha scelto "Salta per 7 gg" e non è loggato) */}
+              {(!isLoginSnoozed || Boolean(auth.currentUser)) && (
+                <div className="p-3.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center shrink-0">
+                      <Cloud className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+                        <span>Sincronizzazione su Google Drive</span>
+                        <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
+                          Multi-Device
+                        </span>
+                      </div>
+                      <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                        I progressi sono sempre salvati sul telefono; accedi solo quando vuoi sincronizzare su Drive
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="text-xs font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
-                      <span>Sincronizzazione su Google Drive</span>
-                      <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300">
-                        Multi-Device
-                      </span>
-                    </div>
-                    <div className="text-[11px] text-slate-500 dark:text-slate-400">
-                      I tuoi progressi, le statistiche e le sessioni sono salvati automaticamente nel tuo Drive
-                    </div>
+                  <div className="self-end sm:self-center shrink-0">
+                    <GoogleAccountButton showSnoozeOption onSyncComplete={refreshStorageData} />
                   </div>
                 </div>
-                <div className="self-end sm:self-center shrink-0">
-                  <GoogleAccountButton onSyncComplete={refreshStorageData} />
-                </div>
-              </div>
+              )}
 
               {/* Banner Ripresa Sessione Attiva (se presente) */}
               {savedSession && (
